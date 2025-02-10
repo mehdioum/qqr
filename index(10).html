@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code - Générateur et Scanner</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        input, button { padding: 10px; margin: 10px; font-size: 16px; }
+        button { cursor: pointer; }
+        #qrcode { margin-top: 20px; }
+        #scanner img { max-width: 300px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <!-- Section Génération du QR Code -->
+    <div id="generator">
+        <h2>Entrez votre nom :</h2>
+        <input type="text" id="nameInput" placeholder="Votre nom">
+        <button onclick="generateQRCode()">Générer QR Code</button>
+        <div id="qrcode"></div>
+    </div>
+
+    <!-- Section Affichage du nom après scan -->
+    <div id="scanner" style="display: none;">
+        <h2 id="displayName">Chargement...</h2>
+        <!-- Ajout de l'image -->
+        <img id="scannedImage" src="mon_image.jpg" alt="Image du scan" style="display: none;">
+    </div>
+
+    <script>
+        // Fonction pour récupérer les paramètres de l'URL
+        function getQueryParam(param) {
+            let params = new URLSearchParams(window.location.search);
+            return params.get(param);
+        }
+
+        // Fonction pour générer un QR Code avec le nom
+        function generateQRCode() {
+            let name = document.getElementById("nameInput").value.trim();
+            if (name === "") {
+                alert("Veuillez entrer un nom !");
+                return;
+            }
+            
+            // Création de l'URL contenant le nom
+            let url = window.location.href.split('?')[0] + "?name=" + encodeURIComponent(name);
+
+            // Effacer un QR code existant
+            document.getElementById("qrcode").innerHTML = "";
+
+            // Générer un QR code avec la nouvelle URL
+            new QRCode(document.getElementById("qrcode"), {
+                text: url,
+                width: 150,
+                height: 150
+            });
+
+            console.log("QR Code généré avec l'URL : " + url);
+        }
+
+        // Fonction qui vérifie si un nom est dans l'URL
+        function checkForScannedName() {
+            let name = getQueryParam("name");
+            if (name) {
+                // Masquer la section de génération du QR Code
+                document.getElementById("generator").style.display = "none";
+                
+                // Afficher la section de nom après scan
+                document.getElementById("scanner").style.display = "block";
+
+                // Afficher le nom correctement décodé
+                document.getElementById("displayName").innerText = "Nom : " + decodeURIComponent(name);
+
+                // Afficher l'image
+                document.getElementById("scannedImage").style.display = "block";
+            }
+        }
+
+        // Vérifier immédiatement si un nom est présent dans l'URL
+        checkForScannedName();
+    </script>
+
+</body>
+</html>
